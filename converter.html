@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Tool" />
+  <meta name="keywords" content="Tool" />
+  <meta name="author" content="Lart Pang" />
+  <title>Reference Format Converter</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css" />
+</head>
+
+<body>
+
+  <section class="section">
+    <div class="columns is-centered">
+      <div class="column is-half">
+        <div class="box">
+          <h1 class="title">Reference Format Converter</h1>
+
+          <div class="columns">
+            <div class="column">
+              <div class="field">
+                <label class="label">Input Format</label>
+                <div class="select">
+                  <select id="input-format">
+                    <!-- Add input formats in JS Code-->
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="column">
+              <div class="field">
+                <label class="label">Output Format</label>
+                <div class="select">
+                  <select id="output-format">
+                    <!-- Add output formats in JS Code-->
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label">Input Data</label>
+            <div class="control">
+              <textarea id="input-data" class="textarea" placeholder="Paste your data here"></textarea>
+            </div>
+          </div>
+
+          <div class="field">
+            <button id="convert-button" class="button is-primary" type="button">Convert</button>
+          </div>
+
+          <div class="field">
+            <label class="label">Output Data</label>
+            <div class="control">
+              <textarea id="output-data" class="textarea" placeholder="Your converted data will appear here" readonly></textarea>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    var inputFormats = document.getElementById('input-format');
+    var outputFormats = document.getElementById('output-format');
+
+    var supportedFormats = ['BibTeX', 'RIS'];
+    supportedFormats.forEach(function (format) {
+      var optionInput = document.createElement('option');
+      optionInput.value = format;
+      optionInput.text = format;
+      inputFormats.appendChild(optionInput);
+
+      var optionOutput = document.createElement('option');
+      optionOutput.value = format;
+      optionOutput.text = format;
+      outputFormats.appendChild(optionOutput);
+    });
+  </script>
+
+  <script>
+    function ris2dict(risData) {
+      const lines = risData.trim().split(/\r?\n/);
+
+      var dictData = {};
+      lines.forEach(line => {
+        var parts = line.trim().match(/^\s*?([A-Z0-9]{2})\s*?-\s*?(.*)\s*?$/);
+        if (!parts) return;
+
+        k = parts[1].trim();
+        v = parts[2].trim();
+        if (k === 'TY') {
+          if (v === 'JOUR') { v = 'journal'; }
+          else if (v === 'CONF') { v = 'conference'; }
+          // else if (v === 'BOOK') { v = 'book'; }
+          // else if (v === 'CHAP') { v = 'chapter'; }
+          // else if (v === 'THES') { v = 'thesis'; }
+          // else if (v === 'REPR') { v = 'report'; }
+          // else if (v === 'DATA') { v = 'data'; }
+          // else if (v === 'EBOOK') { v = 'book'; }
+
+          dictData['type'] = v;
+        }
+        else if (k === 'ID') { dictData['id'] = v; }
+        else if (k === 'AU') {
+          if (!dictData['author']) { dictData['author'] = []; }
+          dictData['author'].push(v);
+        }
+        else if (k === 'TI') { dictData['title'] = v; }
+        else if (k === 'PY') { dictData['year'] = v; }
+        else if (k === 'UR') { dictData['url'] = v; }
+        else if (k === 'DO') { dictData['doi'] = v; }
+        else if (k === 'AB') { dictData['abstract'] = v; }
+        else if (k === 'JO') { dictData['journal'] = v; }
+        // else if (k === 'JO') { dictData['booktitle'] = v; }
+      });
+
+      return dictData;
+    }
+
+    function bibtex2dict(bibtexData) {
+      const lines = bibtexData.split('\n').map(line => line.trim()).filter(line => line && line !== '}');
+
+      var dictData = {};
+      lines.forEach(line => {
+        if (line.startsWith('@')) {
+          if (line.startsWith('@article')) { dictData['type'] = 'article'; }
+          else if (line.startsWith('@inproceedings')) { dictData['type'] = 'conference'; }
+          // else if (line.startsWith('@book')) { dictData['type'] = 'book'; }
+          // else if (line.startsWith('@incollection')) { dictData['type'] = 'chapter'; }
+          // else if (line.startsWith('@thesis')) { dictData['type'] = 'thesis'; }
+          // ...
+        } else {
+          const sepIdx = line.indexOf('=');
+          const k = line.substring(0, sepIdx).trim();
+          let v = line.substring(sepIdx + 1).trim();
+          v = v.replace(/^[{'"]+?/, '').replace(/['",}]+?$/, '');
+
+          if (k === 'author') { v = v.split(' and '); }
+          dictData[k] = v;
+        }
+      });
+
+      return dictData;
+    }
+
+    function dict2bibtex(dictData) {
+      var itemType = dictData['type'];
+      if (itemType === 'journal') { itemType = 'article'; }
+      else if (itemType === 'conference') { itemType = 'inproceedings'; }
+      // else if (itemType === 'book') { itemType = 'book'; }
+      // else if (itemType === 'chapter') { itemType = 'incollection'; }
+      // else if (itemType === 'thesis') { itemType = 'thesis';}
+
+      var bibtexHead = '@' + itemType + '{' + dictData['id'] + '\n  ';
+      var bibtexFields = []
+      for (var [k, v] of Object.entries(dictData)) {
+        if (k === 'author') { bibtexFields.push('author = {' + v.join(' and ') + '}'); }
+        else if (k === 'title') { bibtexFields.push('title = {' + v + '}'); }
+        else if (k === 'year') { bibtexFields.push('year = {' + v + '}'); }
+        else if (k === 'url') { bibtexFields.push('url = {' + v + '}'); }
+        else if (k === 'doi') { bibtexFields.push('doi = {' + v + '}'); }
+        else if (k === 'abstract') { bibtexFields.push('abstract = {' + v + '}'); }
+        else if (k === 'journal') { bibtexFields.push('journal = {' + v + '}'); }
+      }
+
+      return bibtexHead + bibtexFields.join(',\n  ') + '\n}';
+    }
+
+    function dict2ris(dictData) {
+      const sepStr = '  - ';
+
+      var typeItem = dictData['type'];
+      if (typeItem === 'journal') { typeItem = 'JOUR'; }
+      else if (typeItem === 'conference') { typeItem = 'CONF'; }
+      // ...
+      var risItems = ['TY' + sepStr + typeItem];
+
+      for (var [k, v] of Object.entries(dictData)) {
+        if (k === 'author') { risItems.push('AU' + sepStr + v); }
+        else if (k === 'title') { risItems.push('TI' + sepStr + v); }
+        else if (k === 'year') { risItems.push('PY' + sepStr + v); }
+        else if (k === 'url') { risItems.push('UR' + sepStr + v); }
+        else if (k === 'doi') { risItems.push('DO' + sepStr + v); }
+        else if (k === 'abstract') { risItems.push('AB' + sepStr + v); }
+        else if (k === 'journal') { risItems.push('JO' + sepStr + v); }
+      }
+
+      return risItems.join('\n');
+    }
+
+    document.getElementById('convert-button').addEventListener('click', function () {
+      const inputFormat = document.getElementById('input-format').value;
+      const outputFormat = document.getElementById('output-format').value;
+      const inputData = document.getElementById('input-data').value;
+
+      var dictData = {};
+      if (inputFormat === 'RIS') {
+        dictData = ris2dict(inputData);
+      } else if (inputFormat === 'BibTeX') {
+        dictData = bibtex2dict(inputData);
+      }
+      console.log(dictData);
+
+      var outputData = '';
+      if (outputFormat === 'RIS') {
+        outputData = dict2ris(dictData);
+      } else if (outputFormat === 'BibTeX') {
+        outputData = dict2bibtex(dictData);
+      }
+
+      document.getElementById('output-data').value = outputData;
+    });
+  </script>
+</body>
+
+</html>
