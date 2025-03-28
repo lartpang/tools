@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文件夹目录树生成工具</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #f5f7fa;
+            color: #333;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #4361ee, #3a0ca3);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .main-content {
+            padding: 25px;
+        }
+
+        .file-input-area {
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .file-input-area:hover {
+            border-color: #4361ee;
+            background-color: #f0f5ff;
+        }
+
+        .file-input-area .icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+            color: #4361ee;
+        }
+
+        .folder-name {
+            margin-top: 10px;
+            font-weight: bold;
+            color: #4361ee;
+            word-break: break-all;
+        }
+
+        .options-container {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .options-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .option-group {
+            flex: 1;
+            min-width: 160px;
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            background-color: white;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: #4361ee;
+            box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.2);
+        }
+
+        .tree-output {
+            margin-top: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 300px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            resize: vertical;
+            margin-bottom: 20px;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            background-color: #4361ee;
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background-color: #3a0ca3;
+            transform: translateY(-1px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background-color: #aaa;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .status {
+            padding: 12px;
+            margin-top: 20px;
+            border-radius: 6px;
+            display: none;
+            font-size: 14px;
+        }
+
+        .status.success {
+            background-color: rgba(75, 181, 67, 0.15);
+            color: #2e7d32;
+            display: block;
+        }
+
+        .status.error {
+            background-color: rgba(244, 67, 54, 0.15);
+            color: #c62828;
+            display: block;
+        }
+
+        .footer {
+            padding: 15px;
+            text-align: center;
+            font-size: 12px;
+            color: #777;
+            border-top: 1px solid #eee;
+            background-color: #f9f9fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>文件夹目录树生成工具</h1>
+        </header>
+
+        <div class="main-content">
+            <input type="file" id="folderInput" webkitdirectory directory multiple style="display: none;">
+            <div id="fileInputArea" class="file-input-area">
+                <div class="icon">📁</div>
+                <div>点击选择文件夹或拖放到此处</div>
+                <div class="folder-name" id="folderNameDisplay">未选择文件夹</div>
+            </div>
+
+            <div class="options-container">
+                <div class="options-row">
+                    <div class="option-group">
+                        <label for="indentType">缩进类型</label>
+                        <select id="indentType">
+                            <option value="space">空格</option>
+                            <option value="tab">制表符</option>
+                            <option value="hyphen">连字符</option>
+                        </select>
+                    </div>
+
+                    <div class="option-group">
+                        <label for="indentSize">缩进大小</label>
+                        <input type="number" id="indentSize" min="1" max="8" value="4">
+                    </div>
+
+                    <div class="option-group">
+                        <label for="showFiles">显示文件</label>
+                        <select id="showFiles">
+                            <option value="all">所有文件</option>
+                            <option value="filtered">过滤文件</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="options-row">
+                    <div class="option-group">
+                        <label for="fileExtensions">文件扩展名</label>
+                        <input type="text" id="fileExtensions" placeholder="如: .txt,.jpg,.png" disabled>
+                    </div>
+
+                    <div class="option-group">
+                        <label for="maxDepth">最大深度 (-1=全部)</label>
+                        <input type="number" id="maxDepth" min="-1" max="20" value="3">
+                    </div>
+
+                    <div class="option-group">
+                        <label for="showEmptyFolders">显示空文件夹</label>
+                        <select id="showEmptyFolders">
+                            <option value="true">是</option>
+                            <option value="false">否</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tree-output">
+                <textarea id="outputTree" readonly placeholder="请先选择文件夹并点击生成目录树"></textarea>
+                <div class="action-buttons">
+                    <button id="generateBtn" disabled>生成目录树</button>
+                    <button id="copyBtn" disabled>复制到剪贴板</button>
+                </div>
+                <div id="status" class="status"></div>
+            </div>
+        </div>
+
+        <div class="footer">
+            本工具由 DeepSeek Chat 生成 | 所有处理均在本地完成，不会上传任何文件
+        </div>
+    </div>
+
+    <script>
+        // HTML转义函数
+        function escapeHtml(unsafe) {
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // 元素引用
+            const folderInput = document.getElementById('folderInput');
+            const fileInputArea = document.getElementById('fileInputArea');
+            const folderNameDisplay = document.getElementById('folderNameDisplay');
+            const indentType = document.getElementById('indentType');
+            const indentSize = document.getElementById('indentSize');
+            const showFiles = document.getElementById('showFiles');
+            const fileExtensions = document.getElementById('fileExtensions');
+            const maxDepth = document.getElementById('maxDepth');
+            const showEmptyFolders = document.getElementById('showEmptyFolders');
+            const generateBtn = document.getElementById('generateBtn');
+            const outputTree = document.getElementById('outputTree');
+            const copyBtn = document.getElementById('copyBtn');
+            const status = document.getElementById('status');
+
+            // 点击区域触发文件选择
+            fileInputArea.addEventListener('click', function() {
+                folderInput.click();
+            });
+
+            // 拖放功能
+            fileInputArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.style.borderColor = '#4361ee';
+                this.style.backgroundColor = '#f0f5ff';
+            });
+
+            fileInputArea.addEventListener('dragleave', function() {
+                this.style.borderColor = '#ccc';
+                this.style.backgroundColor = '';
+            });
+
+            fileInputArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.style.borderColor = '#ccc';
+                this.style.backgroundColor = '';
+
+                const items = e.dataTransfer.items;
+                if (!items || items.length === 0) return;
+
+                for (let i = 0; i < items.length; i++) {
+                    if (items[i].kind === 'file') {
+                        const entry = items[i].webkitGetAsEntry();
+                        if (entry && entry.isDirectory) {
+                            folderInput.files = e.dataTransfer.files;
+                            handleFolderSelection();
+                            break;
+                        }
+                    }
+                }
+            });
+
+            // 文件夹选择处理
+            folderInput.addEventListener('change', handleFolderSelection);
+
+            function handleFolderSelection() {
+                const files = folderInput.files;
+                if (files.length > 0) {
+                    const folderPath = files[0].webkitRelativePath.split('/')[0];
+                    folderNameDisplay.textContent = folderPath;
+                    generateBtn.disabled = false;
+                    outputTree.placeholder = "请点击生成目录树按钮";
+                }
+            }
+
+            // 启用/禁用文件扩展名输入
+            showFiles.addEventListener('change', function() {
+                fileExtensions.disabled = this.value !== 'filtered';
+                if (this.value === 'filtered') {
+                    fileExtensions.focus();
+                }
+            });
+
+            // 生成目录树
+            generateBtn.addEventListener('click', generateTree);
+
+            function generateTree() {
+                const files = folderInput.files;
+                if (!files || files.length === 0) {
+                    showStatus('请先选择文件夹', 'error');
+                    return;
+                }
+
+                // 添加加载状态
+                const originalText = generateBtn.textContent;
+                generateBtn.textContent = '生成中...';
+                generateBtn.disabled = true;
+                copyBtn.disabled = true;
+
+                // 使用setTimeout让UI有机会更新
+                setTimeout(() => {
+                    try {
+                        const folderPath = escapeHtml(files[0].webkitRelativePath.split('/')[0]);
+
+                        // 构建目录结构
+                        const root = { name: folderPath, children: [], isDirectory: true };
+
+                        Array.from(files).forEach(file => {
+                            const parts = file.webkitRelativePath.split('/');
+                            let current = root;
+
+                            for (let i = 1; i < parts.length; i++) {
+                                const part = escapeHtml(parts[i]);
+                                const isLast = i === parts.length - 1;
+
+                                let child = current.children.find(c => c.name === part);
+                                if (!child) {
+                                    child = {
+                                        name: part,
+                                        children: [],
+                                        isDirectory: !isLast
+                                    };
+                                    current.children.push(child);
+                                }
+                                current = child;
+                            }
+                        });
+
+                        // 生成目录树文本
+                        const indentChar = indentType.value === 'space' ? ' ' :
+                                            indentType.value === 'tab' ? '\t' : '-';
+                        const indentSizeValue = indentType.value === 'hyphen' ? 1 : parseInt(indentSize.value);
+                        const extensions = showFiles.value === 'filtered' ?
+                            fileExtensions.value.split(',').map(ext => ext.trim().toLowerCase()) : null;
+                        const shouldShowEmptyFolders = showEmptyFolders.value === 'true';
+                        const maxDepthValue = parseInt(maxDepth.value);
+                        const unlimitedDepth = maxDepthValue === -1;
+
+                        let treeText = `${root.name}\n`;
+
+                        // 检查目录是否有任何有效内容（递归）
+                        function hasAnyValidContent(node, currentDepth) {
+                            // 检查文件
+                            const hasValidFiles = node.children.some(child => {
+                                if (!child.isDirectory) {
+                                    if (showFiles.value === 'all') return true;
+                                    if (!extensions || extensions.length === 0) return false;
+                                    const ext = '.' + child.name.toLowerCase().split('.').pop();
+                                    return extensions.includes(ext);
+                                }
+                                return false;
+                            });
+
+                            if (hasValidFiles) return true;
+
+                            // 检查子文件夹（如果未超过最大深度）
+                            if (unlimitedDepth || currentDepth < maxDepthValue) {
+                                return node.children.some(child => {
+                                    if (child.isDirectory) {
+                                        return hasAnyValidContent(child, currentDepth + 1);
+                                    }
+                                    return false;
+                                });
+                            }
+
+                            return false;
+                        }
+
+                        function buildTree(node, depth = 0, prefix = '') {
+                            if (!unlimitedDepth && depth > maxDepthValue) return;
+
+                            const isRoot = depth === 0;
+
+                            // 先过滤子节点
+                            const children = node.children.filter(child => {
+                                if (child.isDirectory) {
+                                    // 检查是否应该显示这个文件夹
+                                    if (shouldShowEmptyFolders) return true;
+
+                                    // 不显示空文件夹时，检查是否有有效内容
+                                    return hasAnyValidContent(child, depth);
+                                } else {
+                                    // 对于文件，检查是否匹配扩展名
+                                    if (showFiles.value === 'all') return true;
+                                    if (!extensions || extensions.length === 0) return false;
+
+                                    const ext = '.' + child.name.toLowerCase().split('.').pop();
+                                    return extensions.includes(ext);
+                                }
+                            });
+
+                            children.forEach((child, index) => {
+                                const isLast = index === children.length - 1;
+                                const newPrefix = isRoot ? '' : prefix + (isLast ? '    ' : '│   ');
+
+                                let line = isRoot ? '' : prefix + (isLast ? '└── ' : '├── ');
+                                line += child.isDirectory ? `📁 ${child.name}` : `📄 ${child.name}`;
+
+                                treeText += line + '\n';
+
+                                if (child.isDirectory && (unlimitedDepth || depth < maxDepthValue)) {
+                                    buildTree(child, depth + 1, newPrefix);
+                                }
+                            });
+                        }
+
+                        buildTree(root);
+
+                        // 更新UI
+                        if (treeText.trim() === root.name && !(root.children.length > 0 && shouldShowEmptyFolders)) {
+                            outputTree.value = '';
+                            showStatus('没有找到匹配的内容', 'error');
+                        } else {
+                            outputTree.value = treeText;
+                            copyBtn.disabled = false;
+                            showStatus('目录树生成成功', 'success');
+                        }
+                    } catch (error) {
+                        console.error('生成目录树出错:', error);
+                        showStatus('生成目录树时出错: ' + error.message, 'error');
+                        outputTree.value = '';
+                    } finally {
+                        generateBtn.textContent = originalText;
+                        generateBtn.disabled = false;
+                    }
+                }, 100);
+            }
+
+            // 复制到剪贴板
+            copyBtn.addEventListener('click', function() {
+                try {
+                    outputTree.select();
+                    document.execCommand('copy');
+                    showStatus('目录树已复制到剪贴板！', 'success');
+                } catch (err) {
+                    showStatus('复制失败: ' + err.message, 'error');
+                }
+            });
+
+            // 显示状态消息
+            function showStatus(message, type) {
+                status.textContent = message;
+                status.className = 'status ' + type;
+
+                setTimeout(function() {
+                    status.className = 'status';
+                }, 3000);
+            }
+        });
+    </script>
+</body>
+</html>
