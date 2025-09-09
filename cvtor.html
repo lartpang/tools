@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Tool" />
+  <meta name="keywords" content="Tool" />
+  <meta name="author" content="Lart Pang" />
+  <title>ABC Convertor</title>
+
+  <link rel="stylesheet" href="utils/css/bulma-1.0.0.min.css" />
+  <script src="utils/js/crypto-js-4.2.0.min.js"></script>
+</head>
+
+<body>
+  <section class="section">
+    <form id="form" class="columns is-centered">
+      <div class="column is-one-third">
+        <div class="box">
+          <div class="field">
+            <label class="label" for="mode">模式</label>
+            <div class="select">
+              <select id="mode" name="mode">
+                <option value="mode1">mode1</option>
+                <option value="mode2">mode2</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label" for="length">长度</label>
+            <input class="slider is-fullwidth" step="1" type="range" id="length" name="length" min="1" max="16" value="16" oninput="lengthOutput.value = length.value">
+            <output id="lengthOutput">16</output>
+          </div>
+
+          <div class="field">
+            <label class="label" for="auxInfo">辅助</label>
+            <div class="control">
+              <input class="input" type="text" id="auxInfo" name="auxInfo">
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label" for="baseInfo">基础</label>
+            <div class="control">
+              <input class="input" type="password" autocomplete="off" id="baseInfo" name="baseInfo">
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label" for="specInfo">判别</label>
+            <div class="control">
+              <input class="input" type="password" autocomplete="off" id="specInfo" name="specInfo">
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label" for="extraSettings">选项</label>
+
+            <div class="columns">
+              <div class="column">
+                <button class="checkbox" for="replaceSlash">
+                  <input type="checkbox" id="replaceSlash" name="replaceSlash"> 替换“/”符号
+                </button>
+              </div>
+              <div class="column">
+                <button class="checkbox" for="simplifyString">
+                  <input type="checkbox" id="simplifyString" name="simplifyString"> 简化字符串
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <input class="button is-primary" type="submit" value="OK">
+          </div>
+          <div class="control">
+            <input class="input" type="text" id="result" name="result" readonly>
+          </div>
+        </div>
+      </div>
+
+    </form>
+  </section>
+
+  <script>
+    function generateFlowerStr(baseInfo, specInfo) {
+      const upperCode = "sunlovesnow1990090127xykab";
+
+      const md5Str1 = CryptoJS.HmacMD5(baseInfo, specInfo).toString();
+      let source = CryptoJS.HmacMD5(md5Str1, "snow").toString().split('');
+      const rule = CryptoJS.HmacMD5(md5Str1, "kise").toString().split('');
+
+      for (let c = 0; c < 32; c++) {
+        if (isNaN(parseInt(source[c], 10))) {
+          if (upperCode.indexOf(rule[c]) > -1) {
+            source[c] = source[c].toUpperCase();
+          }
+        }
+      }
+
+      let code32 = source.join('');
+      let code16 = code32[0].match(/[0-9]/) ? "K" + code32.slice(1, 16) : code32.slice(0, 16);
+      return code16;
+    }
+
+    function generateShansingStr(baseInfo, specInfo, auxInfo) {
+      const symbol = "!@#$%!@#$%!@#$%!@#$%!@#$%!@#$%";
+
+      let hexHashStr = CryptoJS.HmacSHA256(baseInfo, specInfo).toString();
+      hexHashStr = CryptoJS.HmacSHA256(hexHashStr, auxInfo).toString();
+      let bytesList = [];
+      for (let i = 0; i < hexHashStr.length; i += 2) {
+        bytesList.push(parseInt(hexHashStr.slice(i, i + 2), 16));
+      }
+
+      let code40 = bytesList.slice(0, 30);
+      code40 = btoa(String.fromCharCode.apply(null, code40));
+
+      let head = code40.charCodeAt(0);
+      if (head >= 65 && head <= 90) head = symbol[head - 65];
+      else if (head >= 97 && head <= 122) head = symbol[head - 97];
+      else if (head >= 48 && head <= 57) head = symbol[head - 47];
+      else if (head === 43) head = symbol[3];
+      else if (head === 47) head = symbol[4];
+      code40 = head + code40.slice(1).replace(/\+/g, "/").replace(/\//g, "\\");
+      return code40.slice(0, 16);
+    }
+
+    document.getElementById('form').addEventListener('submit', function (event) {
+      event.preventDefault();
+
+      const mode = document.getElementById('mode').value;
+      const baseInfo = document.getElementById('baseInfo').value;
+      const specInfo = document.getElementById('specInfo').value;
+
+      let finalStr = '';
+      if (mode === 'mode1') {
+        finalStr = generateFlowerStr(baseInfo, specInfo);
+      } else if (mode === 'mode2') {
+        finalStr = generateShansingStr(baseInfo, specInfo, document.getElementById('auxInfo').value);
+      }
+
+      finalStr = finalStr.slice(0, parseInt(document.getElementById('length').value, 10));
+      if (document.getElementById('replaceSlash').checked) {
+        finalStr = finalStr.replace(/\//g, '-');
+      }
+      if (document.getElementById('simplifyString').checked) {
+        finalStr = finalStr.replace(/[^a-zA-Z0-9]/g, 'O');
+      }
+
+      document.getElementById('result').value = finalStr;
+    });
+  </script>
+</body>
+
+</html>
