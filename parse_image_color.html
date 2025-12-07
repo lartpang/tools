@@ -4,17 +4,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI 自适应智能配色提取器</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.3.0/color-thief.umd.js"></script>
+    <title>自适应智能配色提取器</title>
+    <script src="https://unpkg.com/colorthief@2.3.2/dist/color-thief.umd.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #f4f6f8;
+            --bg-color: #f8f9fa;
             --card-bg: #ffffff;
-            --text-main: #333;
-            --text-sub: #666;
-            --radius: 16px;
-            --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            --text-main: #2c3e50;
+            --text-sub: #7f8c8d;
+            --radius: 20px;
+            --shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
             --accent: #3498db;
+            --mono-font: 'Roboto Mono', Consolas, monospace;
         }
 
         body {
@@ -29,11 +31,11 @@
             min-height: 100vh;
         }
 
-        /* --- Toast 提示框样式 (新增) --- */
+        /* --- Toast 提示框 --- */
         .toast {
             visibility: hidden;
             min-width: 250px;
-            background-color: rgba(50, 50, 50, 0.9);
+            background-color: rgba(44, 62, 80, 0.95);
             color: #fff;
             text-align: center;
             border-radius: 50px;
@@ -44,7 +46,7 @@
             top: 30px;
             transform: translateX(-50%) translateY(-20px);
             font-size: 14px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
             opacity: 0;
             transition: opacity 0.3s, transform 0.3s;
             display: flex;
@@ -81,39 +83,39 @@
             transform: rotate(45deg);
         }
 
-        /* ----------------------- */
-
         /* 上传区域 */
         .upload-container {
             background: var(--card-bg);
-            padding: 40px;
+            padding: 50px;
             border-radius: var(--radius);
             box-shadow: var(--shadow);
             text-align: center;
             width: 100%;
             max-width: 600px;
-            border: 2px dashed #dde1e6;
+            border: 3px dashed #eef2f7;
             transition: all 0.3s ease;
             cursor: pointer;
             position: relative;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
         }
 
         .upload-container:hover {
             border-color: var(--accent);
-            transform: translateY(-2px);
+            background: #fbfdff;
+            transform: translateY(-3px);
         }
 
         .upload-btn {
             background-color: var(--accent);
             color: white;
-            padding: 10px 24px;
+            padding: 12px 28px;
             border-radius: 30px;
             border: none;
             font-size: 16px;
             font-weight: 600;
-            margin-top: 10px;
+            margin-top: 15px;
             pointer-events: none;
+            box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
         }
 
         input[type="file"] {
@@ -126,7 +128,7 @@
             cursor: pointer;
         }
 
-        /* 结果展示区域 */
+        /* 结果区域 */
         .result-container {
             display: none;
             width: 100%;
@@ -135,13 +137,13 @@
             gap: 40px;
             justify-content: center;
             align-items: flex-start;
-            animation: fadeIn 0.5s ease;
+            animation: fadeIn 0.6s cubic-bezier(0.22, 0.61, 0.36, 1);
         }
 
         @keyframes fadeIn {
             from {
                 opacity: 0;
-                transform: translateY(10px);
+                transform: translateY(20px);
             }
 
             to {
@@ -152,9 +154,9 @@
 
         .image-preview-box {
             flex: 1;
-            min-width: 320px;
+            min-width: 340px;
             background: var(--card-bg);
-            padding: 20px;
+            padding: 25px;
             border-radius: var(--radius);
             box-shadow: var(--shadow);
             display: flex;
@@ -165,41 +167,65 @@
         #preview-img {
             max-width: 100%;
             max-height: 500px;
-            border-radius: 8px;
+            border-radius: 12px;
             object-fit: contain;
         }
 
         .palette-box {
             flex: 1.5;
-            min-width: 320px;
+            min-width: 340px;
             display: flex;
             flex-direction: column;
             gap: 25px;
         }
 
+        /* 控制栏 */
+        .controls-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .sort-btn-group {
+            display: flex;
+            background: #eef2f7;
+            border-radius: 20px;
+            padding: 4px;
+        }
+
+        .sort-btn {
+            background: none;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 16px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-sub);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .sort-btn.active {
+            background: #fff;
+            color: var(--accent);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        /* 比例分布条 */
         .chart-container {
             background: #fff;
-            padding: 20px;
+            padding: 15px;
             border-radius: var(--radius);
             box-shadow: var(--shadow);
         }
 
-        .chart-title {
-            font-size: 14px;
-            font-weight: bold;
-            color: var(--text-sub);
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-        }
-
         .distribution-bar {
-            height: 36px;
+            height: 24px;
             width: 100%;
             display: flex;
             border-radius: 12px;
             overflow: hidden;
-            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .dist-segment {
@@ -211,93 +237,108 @@
         .dist-segment:hover::after {
             content: attr(data-percent);
             position: absolute;
-            top: -30px;
+            top: -32px;
             left: 50%;
             transform: translateX(-50%);
-            background: #333;
+            background: var(--text-main);
             color: #fff;
-            padding: 4px 8px;
-            border-radius: 4px;
+            padding: 5px 10px;
+            border-radius: 6px;
             font-size: 12px;
+            font-weight: bold;
             white-space: nowrap;
         }
 
+        /* 色卡网格布局 */
         .palette-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 25px;
         }
 
         .color-card {
             background: var(--card-bg);
-            border-radius: 12px;
+            border-radius: 18px;
             overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
             display: flex;
             flex-direction: column;
             cursor: pointer;
             position: relative;
+            border: 1px solid transparent;
         }
 
         .color-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(52, 152, 219, 0.15);
+            border-color: rgba(52, 152, 219, 0.3);
         }
 
-        /* 点击时的点击反馈动画 */
         .color-card:active {
-            transform: scale(0.98);
+            transform: scale(0.97);
         }
 
         .color-swatch {
-            height: 90px;
+            height: 110px;
             width: 100%;
             position: relative;
         }
 
         .percentage-tag {
             position: absolute;
-            top: 8px;
-            right: 8px;
-            background: rgba(0, 0, 0, 0.2);
-            color: #fff;
-            font-size: 11px;
-            padding: 2px 6px;
-            border-radius: 10px;
-            backdrop-filter: blur(2px);
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--text-main);
+            font-size: 12px;
+            font-weight: 700;
+            padding: 4px 8px;
+            border-radius: 12px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
-        .color-info {
-            padding: 12px;
-            font-size: 12px;
-            color: var(--text-sub);
-            font-family: 'Consolas', monospace;
+        /* 详细信息区域 */
+        .color-details {
+            padding: 15px;
             background: #fff;
             flex-grow: 1;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            gap: 8px;
+            font-family: var(--mono-font);
         }
 
-        .color-val {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 6px;
-        }
-
-        .color-hex {
-            font-size: 14px;
-            font-weight: bold;
+        .hex-code {
+            font-size: 16px;
+            font-weight: 700;
             color: var(--text-main);
-            margin-bottom: 8px;
             text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .rgb-row {
+            display: flex;
+            align-items: center;
+            font-size: 13px;
+            color: var(--text-main);
+        }
+
+        .rgb-label {
+            font-weight: 600;
+            color: var(--text-sub);
+            width: 25px;
+        }
+
+        .rgb-value {
+            font-weight: 500;
         }
 
         #status-text {
-            margin-top: 10px;
-            color: #666;
-            font-size: 14px;
+            margin-top: 15px;
+            color: var(--text-sub);
+            font-size: 15px;
         }
 
     </style>
@@ -305,36 +346,36 @@
 
 <body>
 
-    <div id="toast" class="toast">
-        <span class="toast-icon"></span>
-        <span id="toast-msg">已复制颜色</span>
-    </div>
+    <div id="toast" class="toast"><span class="toast-icon"></span><span id="toast-msg"></span></div>
 
-    <h2 style="color: #2c3e50;">🎨 AI 自适应色彩提取</h2>
-    <p style="color: #7f8c8d; margin-top: -15px; margin-bottom: 30px;">自动识别图像主要色块并合并近似色</p>
+    <h2 style="color: var(--text-main); margin-bottom: 10px;">🎨 配色提取器</h2>
+    <p style="color: var(--text-sub); margin-top: 0; margin-bottom: 35px;">自动分析图片色彩，提取专业配色方案</p>
 
     <div class="upload-container">
         <input type="file" id="file-input" accept="image/*">
-        <div style="font-size: 48px; margin-bottom: 15px;">🖼️</div>
-        <h3 style="margin: 0;">点击上传图片</h3>
-        <p id="status-text">支持 JPG, PNG，算法将自动分析颜色占比</p>
-        <button class="upload-btn">选择图片</button>
+        <div style="font-size: 56px; margin-bottom: 15px;">🖼️</div>
+        <h3 style="margin: 0; font-size: 22px; color: var(--text-main);">点击上传图片</h3>
+        <p id="status-text">支持 JPG, PNG 格式，本地极速分析</p>
+        <button class="upload-btn">选择文件</button>
     </div>
 
     <div class="result-container" id="result-area">
         <div class="image-preview-box">
             <img id="preview-img" alt="Preview">
-            <div style="margin-top: 15px; font-size: 13px; color: #888;">
-                原始图片
-            </div>
+            <div style="margin-top: 20px; font-weight: 600; color: var(--text-sub);">原始图像</div>
         </div>
 
         <div class="palette-box">
-            <div class="chart-container">
-                <div class="chart-title">
-                    <span>色彩分布比例</span>
-                    <span id="color-count-label">识别中...</span>
+            <div class="controls-bar">
+                <div style="font-weight: 700; color: var(--text-main); font-size: 18px;">配色方案</div>
+                <div class="sort-btn-group">
+                    <button class="sort-btn active" data-sort="percentage">按占比</button>
+                    <button class="sort-btn" data-sort="hue">按色相</button>
+                    <button class="sort-btn" data-sort="brightness">按亮度</button>
                 </div>
+            </div>
+
+            <div class="chart-container">
                 <div class="distribution-bar" id="dist-bar"></div>
             </div>
 
@@ -352,215 +393,215 @@
         const distBar = document.getElementById('dist-bar');
         const canvas = document.getElementById('analysis-canvas');
         const statusText = document.getElementById('status-text');
-        const colorCountLabel = document.getElementById('color-count-label');
         const toast = document.getElementById('toast');
         const toastMsg = document.getElementById('toast-msg');
+        const sortButtons = document.querySelectorAll('.sort-btn');
 
         const colorThief = new ColorThief();
 
-        // 显示 Toast 提示函数
+        let currentPaletteData = [];
+        let currentSortMode = 'percentage';
+
+        // --- Toast 提示 ---
         let toastTimeout;
         function showToast(message) {
             toastMsg.innerText = message;
             toast.className = "toast show";
-
-            // 清除之前的定时器，防止连续点击时闪烁
             clearTimeout(toastTimeout);
-
-            // 2.5秒后消失
             toastTimeout = setTimeout(() => {
                 toast.className = toast.className.replace("show", "");
             }, 2500);
         }
 
+        // --- 事件监听 ---
         fileInput.addEventListener('change', function (e) {
             const file = e.target.files[0];
             if (!file) return;
-
             const reader = new FileReader();
             reader.onload = function (event) {
                 previewImg.src = event.target.result;
                 resultArea.style.display = 'flex';
-                statusText.innerText = "正在分析像素...";
+                statusText.innerText = "正在进行像素级色彩分析...";
+                // 滚动到结果区域
+                setTimeout(() => {
+                    resultArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 300);
 
                 previewImg.onload = function () {
-                    setTimeout(() => processImage(previewImg), 100);
+                    setTimeout(() => processImage(previewImg), 200);
                 };
             };
             reader.readAsDataURL(file);
         });
 
+        sortButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                sortButtons.forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                currentSortMode = e.target.dataset.sort;
+                applySortAndRender();
+            });
+        });
+
+        // --- 核心处理流程 ---
         function processImage(img) {
             let initialPalette = [];
             try {
                 initialPalette = colorThief.getPalette(img, 20);
             } catch (e) {
                 console.error(e);
-                statusText.innerText = "分析失败，请换张图片试试";
+                statusText.innerText = "分析失败，请确保图片格式正确";
+                showToast("图片分析失败，请重试");
                 return;
             }
 
             const colorStats = calculateColorWeights(img, initialPalette);
-            const finalPalette = mergeAndFilterColors(colorStats);
+            currentPaletteData = mergeFilterAndEnrichColors(colorStats);
 
-            renderUI(finalPalette);
-            statusText.innerText = "分析完成！点击色块可复制 HEX 代码";
+            // 默认按占比排序
+            currentSortMode = 'percentage';
+            sortButtons.forEach(b => b.classList.remove('active'));
+            document.querySelector('[data-sort="percentage"]').classList.add('active');
+            applySortAndRender();
+
+            statusText.innerText = "分析完成！点击色卡可复制 HEX 代码";
+            showToast("色彩分析完成！");
         }
 
+        // 计算像素占比
         function calculateColorWeights(img, palette) {
             const ctx = canvas.getContext('2d');
-            const scale = Math.min(1, 200 / Math.max(img.naturalWidth, img.naturalHeight));
+            const scale = Math.min(1, 400 / Math.max(img.naturalWidth, img.naturalHeight));
             canvas.width = img.naturalWidth * scale;
             canvas.height = img.naturalHeight * scale;
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-
             let counts = new Array(palette.length).fill(0);
-            const step = 4 * 5;
+            const step = 4 * 2;
+
             for (let i = 0; i < imageData.length; i += step) {
-                const r = imageData[i];
-                const g = imageData[i + 1];
-                const b = imageData[i + 2];
                 if (imageData[i + 3] < 128) continue;
-
-                let minDist = Infinity;
-                let closestIndex = 0;
-
+                let minDist = Infinity; let closestIndex = 0;
                 for (let j = 0; j < palette.length; j++) {
-                    const [pr, pg, pb] = palette[j];
-                    const dist = colorDistance(r, g, b, pr, pg, pb);
-                    if (dist < minDist) {
-                        minDist = dist;
-                        closestIndex = j;
-                    }
+                    const dist = colorDistance(imageData[i], imageData[i + 1], imageData[i + 2], palette[j][0], palette[j][1], palette[j][2]);
+                    if (dist < minDist) { minDist = dist; closestIndex = j; }
                 }
                 counts[closestIndex]++;
             }
-
-            return palette.map((color, i) => ({
-                color: color,
-                count: counts[i]
-            }));
+            return palette.map((color, i) => ({ color: color, count: counts[i] }));
         }
 
-        function mergeAndFilterColors(stats) {
-            const DISTANCE_THRESHOLD = 35;
+        // 合并近似色，过滤噪点
+        function mergeFilterAndEnrichColors(stats) {
+            const DISTANCE_THRESHOLD = 45;
             const PERCENTAGE_THRESHOLD = 0.01;
 
             stats.sort((a, b) => b.count - a.count);
-
             let merged = [];
 
             stats.forEach(item => {
-                const totalPixels = stats.reduce((sum, s) => sum + s.count, 0);
-                const percentage = item.count / totalPixels;
+                const total = stats.reduce((sum, s) => sum + s.count, 0);
+                if (item.count / total < PERCENTAGE_THRESHOLD) return;
 
-                if (percentage < PERCENTAGE_THRESHOLD) return;
-
-                let mergedToExisting = false;
+                let isMerged = false;
                 for (let existing of merged) {
-                    const d = colorDistance(
-                        item.color[0], item.color[1], item.color[2],
-                        existing.color[0], existing.color[1], existing.color[2]
-                    );
-
-                    if (d < DISTANCE_THRESHOLD) {
-                        existing.count += item.count;
-                        mergedToExisting = true;
-                        break;
+                    if (colorDistance(...item.color, ...existing.color) < DISTANCE_THRESHOLD) {
+                        existing.count += item.count; isMerged = true; break;
                     }
                 }
-
-                if (!mergedToExisting) {
-                    merged.push({
-                        color: item.color,
-                        count: item.count
-                    });
-                }
+                if (!isMerged) merged.push({ color: item.color, count: item.count });
             });
 
             const finalTotal = merged.reduce((sum, item) => sum + item.count, 0);
-            return merged.map(item => ({
-                color: item.color,
-                percentage: (item.count / finalTotal * 100).toFixed(1)
-            })).sort((a, b) => b.percentage - a.percentage);
-        }
 
-        function renderUI(palette) {
-            paletteGrid.innerHTML = '';
-            distBar.innerHTML = '';
-            colorCountLabel.innerText = `提取出 ${palette.length} 种主色`;
-
-            palette.forEach(item => {
+            return merged.map(item => {
                 const [r, g, b] = item.color;
-                const hex = rgbToHex(r, g, b);
-
-                const segment = document.createElement('div');
-                segment.className = 'dist-segment';
-                segment.style.backgroundColor = `rgb(${r},${g},${b})`;
-                segment.style.width = `${item.percentage}%`;
-                segment.dataset.percent = `${item.percentage}%`;
-                distBar.appendChild(segment);
-
-                createColorCard(r, g, b, hex, item.percentage);
+                const hsl = rgbToHsl(r, g, b);
+                return {
+                    color: item.color,
+                    rgbObj: { r, g, b },
+                    hex: rgbToHex(r, g, b),
+                    percentageNum: (item.count / finalTotal * 100),
+                    percentageStr: (item.count / finalTotal * 100).toFixed(1) + '%',
+                    hsl: hsl
+                };
             });
         }
 
-        function createColorCard(r, g, b, hex, percent) {
+        // --- 排序与渲染 UI ---
+        function applySortAndRender() {
+            let dataToSort = [...currentPaletteData];
+
+            if (currentSortMode === 'percentage') {
+                dataToSort.sort((a, b) => b.percentageNum - a.percentageNum);
+            } else if (currentSortMode === 'hue') {
+                dataToSort.sort((a, b) => b.hsl[0] - a.hsl[0]);
+            } else if (currentSortMode === 'brightness') {
+                dataToSort.sort((a, b) => b.hsl[2] - a.hsl[2]);
+            }
+
+            renderUI(dataToSort);
+        }
+
+        function renderUI(paletteData) {
+            paletteGrid.innerHTML = '';
+            distBar.innerHTML = '';
+
+            // 渲染比例条
+            const percentageSortedData = [...currentPaletteData].sort((a, b) => b.percentageNum - a.percentageNum);
+            percentageSortedData.forEach(item => {
+                const segment = document.createElement('div');
+                segment.className = 'dist-segment';
+                segment.style.backgroundColor = item.hex;
+                segment.style.width = item.percentageStr;
+                segment.dataset.percent = item.percentageStr;
+                distBar.appendChild(segment);
+            });
+
+            // 渲染色卡
+            paletteData.forEach(item => {
+                createColorCard(item);
+            });
+        }
+
+        function createColorCard(item) {
             const card = document.createElement('div');
             card.className = 'color-card';
 
-            const swatch = document.createElement('div');
-            swatch.className = 'color-swatch';
-            swatch.style.backgroundColor = `rgb(${r},${g},${b})`;
-
-            const tag = document.createElement('div');
-            tag.className = 'percentage-tag';
-            tag.innerText = `${percent}%`;
-            swatch.appendChild(tag);
-
-            const info = document.createElement('div');
-            info.className = 'color-info';
-
-            info.innerHTML = `
-                <div class="color-hex">${hex}</div>
-                <div class="color-val"><span>R</span>${pad(r)}</div>
-                <div class="color-val"><span>G</span>${pad(g)}</div>
-                <div class="color-val"><span>B</span>${pad(b)}</div>
+            // 使用美化后的垂直布局
+            card.innerHTML = `
+                <div class="color-swatch" style="background-color: ${item.hex};">
+                    <div class="percentage-tag">${item.percentageStr}</div>
+                </div>
+                <div class="color-details">
+                    <div class="hex-code">${item.hex}</div>
+                    <div class="rgb-row">
+                        <span class="rgb-label">R:</span><span class="rgb-value">${pad(item.rgbObj.r)}</span>
+                    </div>
+                    <div class="rgb-row">
+                        <span class="rgb-label">G:</span><span class="rgb-value">${pad(item.rgbObj.g)}</span>
+                    </div>
+                    <div class="rgb-row">
+                        <span class="rgb-label">B:</span><span class="rgb-value">${pad(item.rgbObj.b)}</span>
+                    </div>
+                </div>
             `;
-
-            // 点击事件更新：不再使用 alert
             card.onclick = () => {
-                navigator.clipboard.writeText(hex).then(() => {
-                    // 调用我们写的 toast 函数
-                    showToast(`已复制 ${hex} 到剪贴板`);
-                }).catch(err => {
-                    showToast(`复制失败`);
-                });
+                navigator.clipboard.writeText(item.hex).then(() => showToast(`已复制 HEX: ${item.hex}`))
+                    .catch(() => showToast("复制失败"));
             };
-
-            card.title = "点击复制";
-
-            card.appendChild(swatch);
-            card.appendChild(info);
             paletteGrid.appendChild(card);
         }
 
-        function colorDistance(r1, g1, b1, r2, g2, b2) {
-            return Math.sqrt(
-                Math.pow(r1 - r2, 2) +
-                Math.pow(g1 - g2, 2) +
-                Math.pow(b1 - b2, 2)
-            );
-        }
-
-        function rgbToHex(r, g, b) {
-            return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
-        }
-
-        function pad(num) {
-            return num.toString().padStart(3, '0');
+        // --- 工具函数 ---
+        function colorDistance(r1, g1, b1, r2, g2, b2) { return Math.sqrt(Math.pow(r1 - r2, 2) + Math.pow(g1 - g2, 2) + Math.pow(b1 - b2, 2)); }
+        function rgbToHex(r, g, b) { return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase(); }
+        function pad(num) { return num.toString().padStart(3, '0'); }
+        function rgbToHsl(r, g, b) {
+            r /= 255, g /= 255, b /= 255; var max = Math.max(r, g, b), min = Math.min(r, g, b); var h, s, l = (max + min) / 2;
+            if (max == min) { h = s = 0; } else { var d = max - min; s = l > 0.5 ? d / (2 - max - min) : d / (max + min); switch (max) { case r: h = (g - b) / d + (g < b ? 6 : 0); break; case g: h = (b - r) / d + 2; break; case b: h = (r - g) / d + 4; break; } h /= 6; }
+            return [h, s, l];
         }
     </script>
 </body>
