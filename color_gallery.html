@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>全能流行色系展示画廊 | Ultimate Color Gallery</title>
+    <style>
+        :root {
+            --bg-color: #f4f6f8;
+            --text-main: #2d3436;
+            --text-sub: #636e72;
+            --card-bg: #ffffff;
+            --shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+            --radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+
+        /* Header Area */
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-weight: 800;
+            margin-bottom: 10px;
+            font-size: 2.2rem;
+            background: linear-gradient(135deg, #0984e3 0%, #a29bfe 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p.subtitle {
+            color: var(--text-sub);
+            font-size: 1rem;
+        }
+
+        /* Navigation / Tabs */
+        .nav-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .nav-btn {
+            padding: 8px 20px;
+            border: none;
+            background: #fff;
+            color: var(--text-sub);
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            transition: var(--transition);
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            color: var(--text-main);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .nav-btn.active {
+            background: var(--text-main);
+            color: #fff;
+            box-shadow: 0 6px 15px rgba(45, 52, 54, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* Description Area */
+        .theme-info {
+            text-align: center;
+            margin-bottom: 40px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            animation: fadeIn 0.4s ease;
+            padding: 0 10px;
+        }
+
+        .theme-info h2 {
+            font-size: 1.6rem;
+            margin-bottom: 10px;
+            letter-spacing: -0.5px;
+        }
+
+        .theme-info p {
+            color: var(--text-sub);
+            line-height: 1.7;
+            font-size: 1.05rem;
+        }
+
+        /* Grid Layout */
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 20px;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding-bottom: 50px;
+        }
+
+        /* Color Card */
+        .color-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            animation: slideUp 0.5s ease forwards;
+            opacity: 0;
+            border: 1px solid rgba(0, 0, 0, 0.02);
+        }
+
+        .color-card:hover {
+            transform: translateY(-6px) scale(1.02);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            z-index: 2;
+        }
+
+        .color-swatch {
+            height: 130px;
+            width: 100%;
+        }
+
+        .color-meta {
+            padding: 12px;
+            text-align: center;
+        }
+
+        .color-hex {
+            font-family: "SF Mono", "Roboto Mono", monospace;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--text-main);
+            opacity: 0.9;
+        }
+
+        .color-name {
+            font-size: 0.8rem;
+            color: var(--text-sub);
+            margin-top: 4px;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #2d3436;
+            color: white;
+            padding: 12px 28px;
+            border-radius: 50px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1000;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>Color Aesthetics Gallery</h1>
+        <p class="subtitle">点击下方标签切换色系 · 点击色块复制 HEX 代码</p>
+    </header>
+
+    <div class="nav-container" id="navContainer">
+    </div>
+
+    <div class="theme-info" id="themeInfo">
+        <h2 id="themeTitle">Loading...</h2>
+        <p id="themeDesc">...</p>
+    </div>
+
+    <main class="color-grid" id="colorGrid">
+    </main>
+
+    <div class="toast" id="toast">已复制到剪贴板!</div>
+
+    <script>
+        /**
+         * ==========================================
+         * 🎨 色系配置数据库 (THEME DATABASE)
+         * 包含 8 种最流行的现代色系
+         * ==========================================
+         */
+        const colorThemes = {
+            "china": {
+                name: "中国传统色 (Chinese Traditional)",
+                desc: "取法自然，诗意风雅。历经千年沉淀的东方色彩，色名如诗，色相沉稳，展现出独特的文化底蕴和高级感。",
+                colors: [
+                    { hex: "#B5CECE", name: "天青" }, { hex: "#FF4C00", name: "朱红" },
+                    { hex: "#424C50", name: "黛蓝" }, { hex: "#F0C239", name: "琉璃黄" },
+                    { hex: "#3E4145", name: "墨色" }, { hex: "#CCA4E3", name: "藕荷" },
+                    { hex: "#789262", name: "竹青" }, { hex: "#9E2A2B", name: "胭脂" },
+                    { hex: "#F2E6CE", name: "鱼肚白" }, { hex: "#177CB0", name: "靛蓝" }
+                ]
+            },
+            "morandi": {
+                name: "莫兰迪色系 (Morandi)",
+                desc: "极简、舒缓、高级灰。通过在色彩中加入白色和灰色，降低饱和度，营造出一种宁静致远、温柔优雅的氛围。",
+                colors: [
+                    { hex: "#9A9C95", name: "雾霾灰" }, { hex: "#8F9E9D", name: "冷杉绿" },
+                    { hex: "#B8AFA7", name: "燕麦色" }, { hex: "#D6C0B5", name: "淡脏粉" },
+                    { hex: "#8996A6", name: "静谧蓝" }, { hex: "#A99985", name: "烟草褐" },
+                    { hex: "#C7B8A1", name: "奶咖色" }, { hex: "#E0D6C8", name: "象牙白" }
+                ]
+            },
+            "cyberpunk": {
+                name: "赛博朋克 (Cyberpunk)",
+                desc: "高科技、低生活、霓虹幻彩。以高饱和度的冷暖色对比为主，常使用荧光蓝、洋红、激光紫，营造未来科幻感。",
+                colors: [
+                    { hex: "#00F0FF", name: "青色故障" }, { hex: "#FF00CC", name: "霓虹洋红" },
+                    { hex: "#7000FF", name: "激光紫" }, { hex: "#FEEA00", name: "警示黄" },
+                    { hex: "#00FF41", name: "矩阵绿" }, { hex: "#FF3333", name: "义眼红" },
+                    { hex: "#120458", name: "深空夜" }, { hex: "#292929", name: "碳纤维灰" }
+                ]
+            },
+            "macaron": {
+                name: "马卡龙色系 (Macaron)",
+                desc: "甜蜜、梦幻、少女心。高明度的粉嫩色彩，如同精致的法式甜点，给人带来轻松、愉悦和治愈的视觉感受。",
+                colors: [
+                    { hex: "#FFC0CB", name: "樱花粉" }, { hex: "#ADD8E6", name: "婴儿蓝" },
+                    { hex: "#BDFCC9", name: "薄荷绿" }, { hex: "#FFFACD", name: "柠檬黄" },
+                    { hex: "#E6E6FA", name: "熏衣紫" }, { hex: "#FFDAB9", name: "蜜桃色" }
+                ]
+            },
+            "forest": {
+                name: "森系 (Mori / Forest)",
+                desc: "拥抱自然，返璞归真。以绿色、棕色、米色等大地色调为主，传达出清新、质朴、原生态的生活态度。",
+                colors: [
+                    { hex: "#556B2F", name: "苔藓绿" }, { hex: "#8FBC8F", name: "海藻绿" },
+                    { hex: "#F5F5DC", name: "米绸色" }, { hex: "#8B4513", name: "树皮褐" },
+                    { hex: "#DAA520", name: "秋叶黄" }, { hex: "#CD853F", name: "原木色" },
+                    { hex: "#5F9EA0", name: "湖水蓝" }, { hex: "#FFFFF0", name: "亚麻白" }
+                ]
+            },
+            "dopamine": {
+                name: "多巴胺色系 (Dopamine)",
+                desc: "快乐至上，活力爆棚。通过高饱和度、明亮鲜艳的色彩碰撞，刺激视觉神经，调动积极情绪。",
+                colors: [
+                    { hex: "#FF00FF", name: "电光紫" }, { hex: "#00FF00", name: "荧光绿" },
+                    { hex: "#FFFF00", name: "亮柠檬" }, { hex: "#FF4500", name: "热烈橙" },
+                    { hex: "#00BFFF", name: "深空蓝" }, { hex: "#FF1493", name: "芭比粉" }
+                ]
+            },
+            "maillard": {
+                name: "美拉德 (Maillard)",
+                desc: "温暖、醇厚、秋冬氛围。源自食物褐变反应，以棕褐色系为基调，搭配橘色或焦糖色，尽显成熟与质感。",
+                colors: [
+                    { hex: "#6F4E37", name: "咖啡豆" }, { hex: "#A0522D", name: "焦赭色" },
+                    { hex: "#D2691E", name: "焦糖橘" }, { hex: "#8B0000", name: "深红栗" },
+                    { hex: "#BC8F8F", name: "玫瑰褐" }, { hex: "#DEB887", name: "杏仁黄" }
+                ]
+            },
+            "retro": {
+                name: "复古港风 (Retro)",
+                desc: "胶片质感，时光滤镜。低明度、高对比，浓郁的红、深邃的蓝、暗沉的黄，重现8090年代的经典美学。",
+                colors: [
+                    { hex: "#800020", name: "勃艮第红" }, { hex: "#191970", name: "午夜蓝" },
+                    { hex: "#DAA520", name: "芥末黄" }, { hex: "#008080", name: "复古鸭翅绿" },
+                    { hex: "#A52A2A", name: "铁锈红" }, { hex: "#2F4F4F", name: "深岩灰" }
+                ]
+            }
+        };
+
+        /**
+         * ==========================================
+         * ⚙️ 核心逻辑 (LOGIC)
+         * ==========================================
+         */
+        const navContainer = document.getElementById('navContainer');
+        const colorGrid = document.getElementById('colorGrid');
+        const themeTitle = document.getElementById('themeTitle');
+        const themeDesc = document.getElementById('themeDesc');
+        const toast = document.getElementById('toast');
+
+        function init() {
+            renderNavigation();
+            // 默认显示中国传统色 (China) 因为它很有特色
+            switchTheme('china');
+        }
+
+        function renderNavigation() {
+            Object.keys(colorThemes).forEach(key => {
+                const btn = document.createElement('button');
+                btn.className = 'nav-btn';
+                // 智能提取名字，如果是中文就取括号前部分
+                const name = colorThemes[key].name;
+                const displayName = name.includes('(') ? name.split(' ')[0] : name;
+
+                btn.textContent = displayName;
+                btn.onclick = () => switchTheme(key);
+                btn.dataset.key = key;
+                navContainer.appendChild(btn);
+            });
+        }
+
+        function switchTheme(key) {
+            const theme = colorThemes[key];
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.key === key);
+            });
+
+            themeTitle.textContent = theme.name;
+            themeDesc.textContent = theme.desc;
+
+            colorGrid.innerHTML = '';
+
+            theme.colors.forEach((colorObj, index) => {
+                const card = document.createElement('div');
+                card.className = 'color-card';
+                // 动态计算延迟，根据数量调整速度
+                card.style.animationDelay = `${index * 0.04}s`;
+
+                // 判断颜色深浅，决定文字颜色 (简单判断)
+                // 这里不做复杂算法，默认卡片背景白，如果未来想做深色卡片需计算亮度
+
+                card.innerHTML = `
+                    <div class="color-swatch" style="background-color: ${colorObj.hex}"></div>
+                    <div class="color-meta">
+                        <div class="color-hex">${colorObj.hex}</div>
+                        <div class="color-name">${colorObj.name}</div>
+                    </div>
+                `;
+
+                card.addEventListener('click', () => copyToClipboard(colorObj.hex));
+                colorGrid.appendChild(card);
+            });
+        }
+
+        function copyToClipboard(text) {
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(() => showToast(`已复制: ${text}`));
+            } else {
+                // 备用方案
+                const textArea = document.createElement("textarea");
+                textArea.value = text;
+                textArea.style.position = "fixed";
+                textArea.style.left = "-9999px";
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    showToast(`已复制: ${text}`);
+                } catch (err) {
+                    console.error('复制失败', err);
+                }
+                document.body.removeChild(textArea);
+            }
+        }
+
+        let toastTimeout;
+        function showToast(message) {
+            toast.textContent = message;
+            toast.classList.add('show');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        init();
+    </script>
+</body>
+
+</html>
