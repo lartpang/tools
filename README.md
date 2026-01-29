@@ -5,3 +5,4 @@ Some useful tools:
 - [cvtor](./cvtor.html)
 - [parse_image_color](./parse_image_color.html)
 - [color_gallery](./color_gallery.html)
+- [color-showcase](./color-showcase.html)
