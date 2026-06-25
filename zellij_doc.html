@@ -1,0 +1,1028 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Zellij 默认快捷键场景速查</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f4ef;
+      --surface: #fffdf8;
+      --surface-2: #ece7dc;
+      --ink: #1f2a2e;
+      --muted: #5c666b;
+      --line: #d6d0c4;
+      --accent: #0f766e;
+      --accent-2: #b45309;
+      --accent-3: #315f8f;
+      --danger: #a33b2b;
+      --key-bg: #182328;
+      --key-ink: #f8fafc;
+      --shadow: 0 16px 40px rgba(34, 43, 43, 0.10);
+      --radius: 8px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background:
+        linear-gradient(135deg, rgba(15, 118, 110, 0.10), transparent 34%),
+        linear-gradient(315deg, rgba(180, 83, 9, 0.08), transparent 38%),
+        var(--bg);
+      color: var(--ink);
+      line-height: 1.55;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .shell {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 28px 22px;
+      border-right: 1px solid var(--line);
+      background: rgba(255, 253, 248, 0.88);
+      backdrop-filter: blur(16px);
+      overflow: auto;
+    }
+
+    .brand {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    .brand-mark {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--ink);
+      color: var(--surface);
+      font: 800 18px/1 ui-monospace, SFMono-Regular, Consolas, monospace;
+      box-shadow: var(--shadow);
+    }
+
+    h1,
+    h2,
+    h3 {
+      margin: 0;
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      font-size: 28px;
+      max-width: 13ch;
+    }
+
+    h2 {
+      font-size: 24px;
+    }
+
+    h3 {
+      font-size: 18px;
+    }
+
+    p {
+      margin: 0;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .nav {
+      display: grid;
+      gap: 6px;
+      margin-top: 22px;
+    }
+
+    .nav a {
+      padding: 9px 10px;
+      border-radius: var(--radius);
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 14px;
+      border: 1px solid transparent;
+    }
+
+    .nav a:hover,
+    .nav a:focus-visible {
+      color: var(--ink);
+      background: var(--surface-2);
+      border-color: var(--line);
+      outline: none;
+    }
+
+    .legend {
+      margin-top: 28px;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+      display: grid;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .content {
+      min-width: 0;
+      padding: 34px 38px 70px;
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(260px, 420px);
+      gap: 22px;
+      align-items: end;
+      margin-bottom: 26px;
+    }
+
+    .intro {
+      display: grid;
+      gap: 12px;
+      max-width: 860px;
+    }
+
+    .source-note {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 4px 9px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 253, 248, 0.72);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .search {
+      display: grid;
+      gap: 8px;
+    }
+
+    .search label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    .search input {
+      width: 100%;
+      min-height: 44px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      color: var(--ink);
+      font: inherit;
+      box-shadow: 0 8px 22px rgba(34, 43, 43, 0.06);
+    }
+
+    .search input:focus {
+      border-color: var(--accent);
+      outline: 3px solid rgba(15, 118, 110, 0.16);
+    }
+
+    .quick-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 30px;
+    }
+
+    .metric {
+      min-height: 112px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      display: grid;
+      align-content: space-between;
+      gap: 12px;
+    }
+
+    .metric strong {
+      font-size: 30px;
+      line-height: 1;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    section {
+      margin-top: 38px;
+      scroll-margin-top: 20px;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 14px;
+    }
+
+    .section-head p {
+      max-width: 720px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .grid.two {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .card {
+      min-width: 0;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: 0 10px 28px rgba(34, 43, 43, 0.07);
+      display: grid;
+      gap: 12px;
+    }
+
+    .card.highlight {
+      border-color: rgba(15, 118, 110, 0.40);
+      background: linear-gradient(180deg, rgba(15, 118, 110, 0.08), var(--surface) 46%);
+    }
+
+    .card-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 12px;
+    }
+
+    .tag {
+      flex: 0 0 auto;
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: var(--surface-2);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .scenario {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .keys {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+    }
+
+    kbd {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 28px;
+      min-width: 28px;
+      padding: 3px 8px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-bottom-color: rgba(0, 0, 0, 0.38);
+      border-radius: 6px;
+      background: var(--key-bg);
+      color: var(--key-ink);
+      font: 700 13px/1 ui-monospace, SFMono-Regular, Consolas, monospace;
+      box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.20);
+      white-space: nowrap;
+    }
+
+    .then {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .flow {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .flow li {
+      display: grid;
+      grid-template-columns: 118px minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+      padding-top: 8px;
+      border-top: 1px solid var(--line);
+      font-size: 14px;
+    }
+
+    .flow li:first-child {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    .mode-map {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(116px, 1fr));
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+    }
+
+    .mode-node {
+      min-height: 108px;
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      display: grid;
+      align-content: space-between;
+      gap: 10px;
+    }
+
+    .mode-node strong {
+      font-size: 15px;
+    }
+
+    .mode-node small {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 760px;
+    }
+
+    th,
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    th {
+      background: var(--surface-2);
+      font-size: 13px;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .callout {
+      padding: 16px 18px;
+      border-left: 4px solid var(--accent-2);
+      border-radius: var(--radius);
+      background: rgba(180, 83, 9, 0.08);
+      color: #3d3327;
+      font-size: 14px;
+    }
+
+    .no-results {
+      display: none;
+      padding: 18px;
+      border: 1px dashed var(--line);
+      border-radius: var(--radius);
+      color: var(--muted);
+      background: rgba(255, 253, 248, 0.70);
+    }
+
+    .is-hidden {
+      display: none !important;
+    }
+
+    footer {
+      margin-top: 46px;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    @media (max-width: 1180px) {
+      .quick-strip,
+      .grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .mode-map {
+        grid-template-columns: repeat(3, minmax(150px, 1fr));
+      }
+    }
+
+    @media (max-width: 860px) {
+      .shell {
+        display: block;
+      }
+
+      .sidebar {
+        position: static;
+        height: auto;
+        padding: 22px 18px 12px;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      h1 {
+        max-width: none;
+        font-size: 25px;
+      }
+
+      .nav {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .content {
+        padding: 24px 16px 48px;
+      }
+
+      .topbar,
+      .grid,
+      .grid.two,
+      .quick-strip {
+        grid-template-columns: 1fr;
+      }
+
+      .mode-map {
+        grid-template-columns: repeat(2, minmax(136px, 1fr));
+      }
+
+      .flow li {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .nav,
+      .mode-map {
+        grid-template-columns: 1fr;
+      }
+
+      .section-head {
+        display: grid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">ZJ</div>
+        <h1>Zellij 默认快捷键场景速查</h1>
+        <p class="muted">按实际工作场景组织，基于当前目录的 <code>default.kdl</code> 默认绑定。</p>
+      </div>
+
+      <nav class="nav" aria-label="页面导航">
+        <a href="#mindset">先理解模式</a>
+        <a href="#daily">日常执行</a>
+        <a href="#process">托管程序</a>
+        <a href="#panes">窗格编排</a>
+        <a href="#tabs">标签与项目</a>
+        <a href="#scroll">回看与搜索</a>
+        <a href="#session">会话管理</a>
+        <a href="#tmux">tmux 兼容</a>
+      </nav>
+
+      <div class="legend">
+        <p><strong>入口键：</strong>先按 <kbd>Ctrl p</kbd>、<kbd>Ctrl t</kbd> 等进入模式，再按模式内动作键。</p>
+        <p><strong>退出：</strong>多数模式按 <kbd>Enter</kbd> 或 <kbd>Esc</kbd> 回到 Normal。</p>
+      </div>
+    </aside>
+
+    <main class="content">
+      <header class="topbar">
+        <div class="intro">
+          <div class="source-note">
+            <span class="pill">Zellij default.kdl</span>
+            <span class="pill">模式驱动</span>
+            <span class="pill">高频工作流</span>
+          </div>
+          <h2>不要把 Zellij 当成只会分屏的终端。它更像一个可恢复的工作台。</h2>
+          <p class="muted">下面的速查表把默认快捷键放进日常开发、长期托管、排错回看和多人/多会话管理里。每张卡片都写清楚“什么时候用”和“按键顺序”。</p>
+        </div>
+
+        <div class="search">
+          <label for="filter">搜索场景、动作或快捷键</label>
+          <input id="filter" type="search" placeholder="例如：新建窗格、后台服务、搜索日志、Ctrl p、浮动窗格">
+        </div>
+      </header>
+
+      <div class="quick-strip" aria-label="核心快捷键概览">
+        <div class="metric searchable" data-search="normal locked ctrl g 锁定 模式 误触">
+          <strong><kbd>Ctrl g</kbd></strong>
+          <span>锁定/解锁快捷键层，避免远程程序或编辑器快捷键被 Zellij 抢走。</span>
+        </div>
+        <div class="metric searchable" data-search="pane ctrl p 窗格 分屏 focus">
+          <strong><kbd>Ctrl p</kbd></strong>
+          <span>进入窗格模式，负责分屏、聚焦、全屏、浮动和关闭。</span>
+        </div>
+        <div class="metric searchable" data-search="tab ctrl t 标签 项目 workspace">
+          <strong><kbd>Ctrl t</kbd></strong>
+          <span>进入标签模式，用标签承载项目、环境或任务阶段。</span>
+        </div>
+        <div class="metric searchable" data-search="scroll ctrl s 日志 回看 搜索">
+          <strong><kbd>Ctrl s</kbd></strong>
+          <span>进入滚动模式，回看日志、搜索输出、编辑 scrollback。</span>
+        </div>
+      </div>
+
+      <p id="noResults" class="no-results">没有匹配项。可以搜索动作名、场景词，或直接搜索快捷键，例如 Ctrl t、Alt n、tmux。</p>
+
+      <section id="mindset">
+        <div class="section-head">
+          <div>
+            <h2>先理解模式</h2>
+            <p>Zellij 默认快捷键的重点不是一个全能前缀键，而是进入不同“模式”。进入后，字母键会被解释为 Zellij 动作；回到 Normal 后，键盘继续交给你的 shell、vim、ssh 或 REPL。</p>
+          </div>
+        </div>
+
+        <div class="mode-map">
+          <div class="mode-node searchable" data-search="normal 默认 shell 编辑器 程序">
+            <strong>Normal</strong>
+            <small>默认状态。运行命令、编辑代码、操作 shell。</small>
+            <div class="keys"><kbd>Enter</kbd><span class="then">或</span><kbd>Esc</kbd></div>
+          </div>
+          <div class="mode-node searchable" data-search="pane ctrl p 窗格 分屏 关闭 全屏">
+            <strong>Pane</strong>
+            <small>分屏和聚焦。最常用的布局控制层。</small>
+            <div class="keys"><kbd>Ctrl p</kbd></div>
+          </div>
+          <div class="mode-node searchable" data-search="tab ctrl t 标签 项目 切换 同步">
+            <strong>Tab</strong>
+            <small>项目级隔离。每个标签可以是一套工作区。</small>
+            <div class="keys"><kbd>Ctrl t</kbd></div>
+          </div>
+          <div class="mode-node searchable" data-search="scroll ctrl s 回看 日志 搜索">
+            <strong>Scroll</strong>
+            <small>查看历史输出。适合日志、构建错误和测试失败。</small>
+            <div class="keys"><kbd>Ctrl s</kbd></div>
+          </div>
+          <div class="mode-node searchable" data-search="resize ctrl n 调整大小">
+            <strong>Resize</strong>
+            <small>调整窗格尺寸。适合临时放大日志或编辑区。</small>
+            <div class="keys"><kbd>Ctrl n</kbd></div>
+          </div>
+          <div class="mode-node searchable" data-search="session ctrl o 会话 插件 detach manager">
+            <strong>Session</strong>
+            <small>脱离、恢复、配置、插件和布局管理。</small>
+            <div class="keys"><kbd>Ctrl o</kbd></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="daily">
+        <div class="section-head">
+          <div>
+            <h2>日常使用执行</h2>
+            <p>这些是一天里最常碰到的动作：跑命令、看输出、临时开辅助 shell、快速回到代码。重点是减少在终端窗口之间来回切换。</p>
+          </div>
+        </div>
+
+        <div class="grid">
+          <article class="card highlight searchable" data-search="日常 新建窗格 alt n ctrl p n 临时 shell repl git status">
+            <div class="card-title">
+              <h3>临时开一个执行区</h3>
+              <span class="tag">高频</span>
+            </div>
+            <p class="scenario">正在编辑或看日志时，需要顺手跑 <code>git status</code>、进入 REPL、查环境变量，不想打断当前窗格。</p>
+            <div class="keys"><kbd>Alt n</kbd><span class="then">直接新建窗格</span></div>
+            <div class="keys"><kbd>Ctrl p</kbd><span class="then">然后</span><kbd>n</kbd><span class="then">从 Pane 模式新建</span></div>
+          </article>
+
+          <article class="card searchable" data-search="上下左右 聚焦 切换窗格 alt h alt l alt j alt k ctrl p h j k l">
+            <div class="card-title">
+              <h3>在工作区内移动焦点</h3>
+              <span class="tag">导航</span>
+            </div>
+            <p class="scenario">左边编辑、右边服务、下方日志时，用方向聚焦比切窗口更快。</p>
+            <div class="keys"><kbd>Alt h</kbd><kbd>Alt j</kbd><kbd>Alt k</kbd><kbd>Alt l</kbd></div>
+            <div class="keys"><kbd>Ctrl p</kbd><span class="then">然后</span><kbd>h</kbd><kbd>j</kbd><kbd>k</kbd><kbd>l</kbd></div>
+          </article>
+
+          <article class="card searchable" data-search="全屏 focus fullscreen ctrl p f zellij 放大 当前窗格">
+            <div class="card-title">
+              <h3>临时专注一个窗格</h3>
+              <span class="tag">阅读</span>
+            </div>
+            <p class="scenario">测试输出太长、diff 太宽、REPL 信息太密时，把当前窗格全屏；完成后再按一次恢复布局。</p>
+            <div class="keys"><kbd>Ctrl p</kbd><span class="then">然后</span><kbd>f</kbd></div>
+          </article>
+
+          <article class="card searchable" data-search="调整大小 resize alt = alt - ctrl n h j k l H J K L">
+            <div class="card-title">
+              <h3>给重要输出让空间</h3>
+              <span class="tag">布局</span>
+            </div>
+            <p class="scenario">构建日志或编辑器需要更多空间时，先整体缩放，再精细调整边界。</p>
+            <div class="keys"><kbd>Alt =</kbd><span class="then">放大</span><kbd>Alt -</kbd><span class="then">缩小</span></div>
+            <div class="keys"><kbd>Ctrl n</kbd><span class="then">然后</span><kbd>h</kbd><kbd>j</kbd><kbd>k</kbd><kbd>l</kbd></div>
+          </article>
+
+          <article class="card searchable" data-search="关闭窗格 ctrl p x close focus 任务结束">
+            <div class="card-title">
+              <h3>收掉完成的任务</h3>
+              <span class="tag">清理</span>
+            </div>
+            <p class="scenario">一次性命令、临时 shell 或已经退出的服务占着布局时，关闭当前焦点窗格。</p>
+            <div class="keys"><kbd>Ctrl p</kbd><span class="then">然后</span><kbd>x</kbd></div>
+          </article>
+
+          <article class="card searchable" data-search="锁定 ctrl g locked ssh vim tmux 程序快捷键 冲突">
+            <div class="card-title">
+              <h3>把键盘还给程序</h3>
+              <span class="tag">避冲突</span>
+            </div>
+            <p class="scenario">进入 vim、fzf、远端 tmux 或全屏 TUI 后，如果担心 Zellij 快捷键误触，锁定快捷键层。</p>
+            <div class="keys"><kbd>Ctrl g</kbd><span class="then">锁定；再按</span><kbd>Ctrl g</kbd><span class="then">解锁</span></div>
+          </article>
+        </div>
+      </section>
+
+      <section id="process">
+        <div class="section-head">
+          <div>
+            <h2>托管程序的高频操作</h2>
+            <p>把 Zellij 当作本地或远程的进程工作台：一个窗格跑服务，一个窗格跑测试，一个窗格看日志，一个标签放数据库或后台任务。</p>
+          </div>
+        </div>
+
+        <div class="grid two">
+          <article class="card highlight searchable" data-search="托管 程序 服务 后台 npm dev cargo run rails server 日志 分屏">
+            <div class="card-title">
+              <h3>服务 + 日志 + 命令行三件套</h3>
+              <span class="tag">开发服务</span>
+            </div>
+            <ol class="flow">
+              <li><span class="keys"><kbd>Ctrl p</kbd><kbd>r</kbd></span><span>右侧开服务窗格，运行 <code>npm run dev</code>、<code>cargo run</code> 或 Web 服务。</span></li>
+              <li><span class="keys"><kbd>Ctrl p</kbd><kbd>d</kbd></span><span>下方开日志/测试窗格，持续跑 <code>tail -f</code>、<code>pytest -f</code> 或 watcher。</span></li>
+              <li><span class="keys"><kbd>Alt h/l/j/k</kbd></span><span>在编辑区、服务区、日志区之间移动焦点，不需要离开一个终端窗口。</span></li>
+            </ol>
+          </article>
+
+          <article class="card searchable" data-search="detach 托管 会话 退出终端 保持程序 ctrl o d attach session">
+            <div class="card-title">
+              <h3>让程序继续跑，自己先离开</h3>
+              <span class="tag">长期任务</span>
+            </div>
+            <p class="scenario">远程机器上跑训练、爬虫、构建或服务时，用 detach 离开 Zellij，会话和窗格里的程序仍由 Zellij 托管。</p>
+            <div class="keys"><kbd>Ctrl o</kbd><span class="then">然后</span><kbd>d</kbd></div>
+            <p class="scenario">重新进入通常使用命令行的 <code>zellij attach</code> 或会话管理器，具体取决于你启动会话的方式。</p>
+          </article>
+
+          <article class="card searchable" data-search="标签 tab 项目 服务 数据库 队列 worker ctrl t n r 1 2 3">
+            <div class="card-title">
+              <h3>按系统层次拆标签</h3>
+              <span class="tag">项目组织</span>
+            </div>
+            <p class="scenario">一个标签放 Web 服务，一个标签放数据库/队列，一个标签放部署或运维命令。这样重启某类程序时不会误关其他进程。</p>
+            <div class="keys"><kbd>Ctrl t</kbd><span class="then">然后</span><kbd>n</kbd><span class="then">新建标签</span></div>
+            <div class="keys"><kbd>Ctrl t</kbd><span class="then">然后</span><kbd>r</kbd><span class="then">命名标签</span></div>
+            <div class="keys"><kbd>Ctrl t</kbd><span class="then">然后</span><kbd>1</kbd><span class="then">到</span><kbd>9</kbd></div>
+          </article>
+
+          <article class="card searchable" data-search="同步输入 sync tab 多个窗格 同时执行 ctrl t s">
+            <div class="card-title">
+              <h3>多窗格同时执行同一命令</h3>
+              <span class="tag">批量操作</span>
+            </div>
+            <p class="scenario">多个 ssh 窗格、多个服务目录或多版本环境需要执行同一条命令时，开启当前标签同步输入。用完立即关闭，避免误操作。</p>
+            <div class="keys"><kbd>Ctrl t</kbd><span class="then">然后</span><kbd>s</kbd></div>
+          </article>
+        </div>
+
+        <div class="callout searchable" data-search="托管 注意 quit ctrl q close detach">
+          托管长期程序时，优先用 <kbd>Ctrl o</kbd> <kbd>d</kbd> 脱离会话；不要把 <kbd>Ctrl q</kbd> 当成离开，它是 Quit，会结束 Zellij。只关闭某个任务时才用 <kbd>Ctrl p</kbd> <kbd>x</kbd>。
+        </div>
+      </section>
+
+      <section id="panes">
+        <div class="section-head">
+          <div>
+            <h2>窗格编排</h2>
+            <p>窗格是“同一任务内的并行视图”。常见组合是编辑器、shell、日志、数据库客户端、远程主机。</p>
+          </div>
+        </div>
+
+        <div class="table-wrap searchable" data-search="窗格 pane 新建 关闭 浮动 嵌入 固定 pin group frame stacked">
+          <table>
+            <thead>
+              <tr>
+                <th>场景</th>
+                <th>快捷键</th>
+                <th>适合怎么用</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>向下分屏</td>
+                <td><kbd>Ctrl p</kbd> <kbd>d</kbd></td>
+                <td>下方放日志、测试、编译输出，主窗格继续编辑或操作 shell。</td>
+              </tr>
+              <tr>
+                <td>向右分屏</td>
+                <td><kbd>Ctrl p</kbd> <kbd>r</kbd></td>
+                <td>右侧放服务进程、数据库客户端或远程 ssh，左右对照信息。</td>
+              </tr>
+              <tr>
+                <td>堆叠窗格</td>
+                <td><kbd>Ctrl p</kbd> <kbd>s</kbd></td>
+                <td>终端空间有限时，把多个辅助任务收进 stacked pane，按需切换。</td>
+              </tr>
+              <tr>
+                <td>浮动窗格</td>
+                <td><kbd>Alt f</kbd> 或 <kbd>Ctrl p</kbd> <kbd>w</kbd></td>
+                <td>临时查文档、跑一次命令、打开配置，不破坏当前布局。</td>
+              </tr>
+              <tr>
+                <td>嵌入/浮动切换</td>
+                <td><kbd>Ctrl p</kbd> <kbd>e</kbd></td>
+                <td>某个浮动任务变成长期任务时，把它嵌入布局；反过来也可以临时浮起。</td>
+              </tr>
+              <tr>
+                <td>关闭当前窗格</td>
+                <td><kbd>Ctrl p</kbd> <kbd>x</kbd></td>
+                <td>结束临时命令窗口或不再需要的服务窗口。</td>
+              </tr>
+              <tr>
+                <td>窗格命名</td>
+                <td><kbd>Ctrl p</kbd> <kbd>c</kbd></td>
+                <td>给长期服务命名，例如 api、worker、db、logs，减少误关误切。</td>
+              </tr>
+              <tr>
+                <td>隐藏/显示边框</td>
+                <td><kbd>Ctrl p</kbd> <kbd>z</kbd></td>
+                <td>录屏或窄屏时隐藏 pane frame，换取更多内容空间。</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="tabs">
+        <div class="section-head">
+          <div>
+            <h2>标签与项目层次</h2>
+            <p>标签更适合表示“任务边界”，不是单纯的窗口编号。把不同生命周期的事情拆开，长期托管时更稳。</p>
+          </div>
+        </div>
+
+        <div class="grid">
+          <article class="card searchable" data-search="tab 新建 标签 工作区 ctrl t n">
+            <div class="card-title">
+              <h3>新开任务工作区</h3>
+              <span class="tag">隔离</span>
+            </div>
+            <p class="scenario">从开发切到排障、部署或数据库维护时，新建标签，避免把临时命令混进主开发窗格。</p>
+            <div class="keys"><kbd>Ctrl t</kbd><span class="then">然后</span><kbd>n</kbd></div>
+          </article>
+
+          <article class="card searchable" data-search="tab 切换 标签 h l j k arrows 1 9">
+            <div class="card-title">
+              <h3>快速回到固定区域</h3>
+              <span class="tag">导航</span>
+            </div>
+            <p class="scenario">把 1 号标签固定为代码，2 号为服务，3 号为数据库，肌肉记忆会比标题搜索快。</p>
+            <div class="keys"><kbd>Ctrl t</kbd><span class="then">然后</span><kbd>1</kbd><span class="then">到</span><kbd>9</kbd></div>
+            <div class="keys"><kbd>Ctrl t</kbd><span class="then">然后</span><kbd>h</kbd><kbd>l</kbd></div>
+          </article>
+
+          <article class="card searchable" data-search="break pane 标签 拆出 ctrl t b [ ]">
+            <div class="card-title">
+              <h3>把窗格提升成标签</h3>
+              <span class="tag">重组</span>
+            </div>
+            <p class="scenario">某个服务或排错窗格变得复杂时，把它拆成独立标签继续展开。</p>
+            <div class="keys"><kbd>Ctrl t</kbd><span class="then">然后</span><kbd>b</kbd></div>
+            <div class="keys"><kbd>Ctrl t</kbd><span class="then">然后</span><kbd>[</kbd><span class="then">或</span><kbd>]</kbd></div>
+          </article>
+        </div>
+      </section>
+
+      <section id="scroll">
+        <div class="section-head">
+          <div>
+            <h2>回看、搜索与复制</h2>
+            <p>输出历史是排错的关键。Scroll 模式让你离开实时输出，定位错误，再回到底部继续观察。</p>
+          </div>
+        </div>
+
+        <div class="grid two">
+          <article class="card searchable" data-search="scroll 回看 日志 上下 翻页 ctrl s j k ctrl f ctrl b d u">
+            <div class="card-title">
+              <h3>回看长日志</h3>
+              <span class="tag">排错</span>
+            </div>
+            <p class="scenario">服务刷屏后，需要找第一次失败的位置。</p>
+            <div class="keys"><kbd>Ctrl s</kbd><span class="then">进入 Scroll</span></div>
+            <div class="keys"><kbd>j/k</kbd><span class="then">逐行</span><kbd>Ctrl f/b</kbd><span class="then">翻页</span><kbd>d/u</kbd><span class="then">半页</span></div>
+          </article>
+
+          <article class="card searchable" data-search="search 搜索 日志 error ctrl s s enter n p case wrap whole word">
+            <div class="card-title">
+              <h3>搜索错误或关键字</h3>
+              <span class="tag">定位</span>
+            </div>
+            <p class="scenario">构建失败时直接搜 error、panic、failed、端口号或请求 ID。</p>
+            <div class="keys"><kbd>Ctrl s</kbd><span class="then">然后</span><kbd>s</kbd><span class="then">输入并</span><kbd>Enter</kbd></div>
+            <div class="keys"><kbd>n</kbd><span class="then">下一个</span><kbd>p</kbd><span class="then">上一个</span><kbd>c</kbd><span class="then">大小写</span><kbd>w</kbd><span class="then">环绕</span><kbd>o</kbd><span class="then">整词</span></div>
+          </article>
+
+          <article class="card searchable" data-search="edit scrollback 编辑历史 ctrl s e vim editor">
+            <div class="card-title">
+              <h3>把历史输出交给编辑器</h3>
+              <span class="tag">深查</span>
+            </div>
+            <p class="scenario">日志太长、需要多处跳转或复制整理时，打开 scrollback editor，比在终端里滚动更可靠。</p>
+            <div class="keys"><kbd>Ctrl s</kbd><span class="then">然后</span><kbd>e</kbd></div>
+          </article>
+
+          <article class="card searchable" data-search="bottom 回到底部 ctrl c scroll search 实时输出">
+            <div class="card-title">
+              <h3>回到实时输出</h3>
+              <span class="tag">观察</span>
+            </div>
+            <p class="scenario">排查完旧日志后，回到底部继续观察服务是否恢复。</p>
+            <div class="keys"><kbd>Ctrl c</kbd><span class="then">在 Scroll/Search 中回到底部并退出</span></div>
+          </article>
+        </div>
+      </section>
+
+      <section id="session">
+        <div class="section-head">
+          <div>
+            <h2>会话与插件管理</h2>
+            <p>Session 模式管理的是整个工作台，而不是单个窗格。长期运行、恢复现场、配置快捷键都在这里发生。</p>
+          </div>
+        </div>
+
+        <div class="table-wrap searchable" data-search="session 会话 插件 manager configuration layout share about ctrl o">
+          <table>
+            <thead>
+              <tr>
+                <th>场景</th>
+                <th>快捷键</th>
+                <th>说明</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>脱离当前会话</td>
+                <td><kbd>Ctrl o</kbd> <kbd>d</kbd></td>
+                <td>让窗格里的服务、训练、构建继续运行，当前终端退出 Zellij。</td>
+              </tr>
+              <tr>
+                <td>打开会话管理器</td>
+                <td><kbd>Ctrl o</kbd> <kbd>w</kbd></td>
+                <td>查看和切换已有会话，适合同时维护多个项目或远程任务。</td>
+              </tr>
+              <tr>
+                <td>打开配置界面</td>
+                <td><kbd>Ctrl o</kbd> <kbd>c</kbd></td>
+                <td>检查配置和默认行为，适合调整前先确认当前状态。</td>
+              </tr>
+              <tr>
+                <td>插件管理</td>
+                <td><kbd>Ctrl o</kbd> <kbd>p</kbd></td>
+                <td>管理 Zellij 插件，默认配置中会以浮动窗格打开。</td>
+              </tr>
+              <tr>
+                <td>布局管理</td>
+                <td><kbd>Ctrl o</kbd> <kbd>l</kbd></td>
+                <td>管理 layout；适合把常用服务组合沉淀成固定启动布局。</td>
+              </tr>
+              <tr>
+                <td>分享入口</td>
+                <td><kbd>Ctrl o</kbd> <kbd>s</kbd></td>
+                <td>打开 share 插件。是否能通过网页分享，还取决于配置中的 web server / sharing 设置。</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="tmux">
+        <div class="section-head">
+          <div>
+            <h2>tmux 兼容层</h2>
+            <p>默认配置保留 <kbd>Ctrl b</kbd> 进入 Tmux 模式，适合从 tmux 迁移时先维持旧习惯。但长期使用建议逐步换成 Zellij 的模式入口。</p>
+          </div>
+        </div>
+
+        <div class="grid">
+          <article class="card searchable" data-search="tmux ctrl b 分屏 quote percent">
+            <div class="card-title">
+              <h3>tmux 式分屏</h3>
+              <span class="tag">迁移</span>
+            </div>
+            <div class="keys"><kbd>Ctrl b</kbd><span class="then">然后</span><kbd>"</kbd><span class="then">向下</span></div>
+            <div class="keys"><kbd>Ctrl b</kbd><span class="then">然后</span><kbd>%</kbd><span class="then">向右</span></div>
+          </article>
+
+          <article class="card searchable" data-search="tmux ctrl b c p n comma tab 标签">
+            <div class="card-title">
+              <h3>tmux 式标签切换</h3>
+              <span class="tag">迁移</span>
+            </div>
+            <div class="keys"><kbd>Ctrl b</kbd><span class="then">然后</span><kbd>c</kbd><span class="then">新标签</span></div>
+            <div class="keys"><kbd>Ctrl b</kbd><span class="then">然后</span><kbd>p</kbd><kbd>n</kbd><span class="then">前后切换</span></div>
+            <div class="keys"><kbd>Ctrl b</kbd><span class="then">然后</span><kbd>,</kbd><span class="then">重命名</span></div>
+          </article>
+
+          <article class="card searchable" data-search="tmux ctrl b z d x space scroll">
+            <div class="card-title">
+              <h3>常见 tmux 习惯</h3>
+              <span class="tag">迁移</span>
+            </div>
+            <div class="keys"><kbd>Ctrl b</kbd><span class="then">然后</span><kbd>z</kbd><span class="then">全屏</span></div>
+            <div class="keys"><kbd>Ctrl b</kbd><span class="then">然后</span><kbd>d</kbd><span class="then">detach</span></div>
+            <div class="keys"><kbd>Ctrl b</kbd><span class="then">然后</span><kbd>Space</kbd><span class="then">下一个布局</span></div>
+          </article>
+        </div>
+      </section>
+
+      <footer>
+        依据 <code>default.kdl</code> 中的默认 keybinds、plugins 和相关注释整理。页面为纯静态 HTML，可直接离线打开。
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    const input = document.querySelector("#filter");
+    const items = Array.from(document.querySelectorAll(".searchable"));
+    const noResults = document.querySelector("#noResults");
+
+    function normalize(value) {
+      return value.toLowerCase().replace(/\s+/g, " ").trim();
+    }
+
+    function applyFilter() {
+      const query = normalize(input.value);
+      let shown = 0;
+
+      items.forEach((item) => {
+        const haystack = normalize(`${item.textContent} ${item.dataset.search || ""}`);
+        const match = !query || haystack.includes(query);
+        item.classList.toggle("is-hidden", !match);
+        if (match) shown += 1;
+      });
+
+      noResults.style.display = shown === 0 ? "block" : "none";
+    }
+
+    input.addEventListener("input", applyFilter);
+  </script>
+</body>
+</html>
